@@ -3176,12 +3176,6 @@ idFile *idFileSystemLocal::OpenFileReadFlags( const char *relativePath, int sear
 		return NULL;
 	}
 
-	// make sure the doomkey file is only readable by game at initialization
-	// any other time the key should only be accessed in memory using the provided functions
-	if( common->IsInitialized() && ( idStr::Icmp( relativePath, CDKEY_FILE ) == 0 || idStr::Icmp( relativePath, XPKEY_FILE ) == 0 ) ) {
-		return NULL;
-	}
-
 	//
 	// search through the path, one element at a time
 	//
