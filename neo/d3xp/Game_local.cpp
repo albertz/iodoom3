@@ -1204,7 +1204,7 @@ bool idGameLocal::NextMap( void ) {
 	int					i;
 
 	if ( !g_mapCycle.GetString()[0] ) {
-		Printf( common->GetLanguageDict()->GetString( "#str_04294" ) );
+		Printf( "%s", common->GetLanguageDict()->GetString( "#str_04294" ) );
 		return false;
 	}
 	if ( fileSystem->ReadFile( g_mapCycle.GetString(), NULL, NULL ) < 0 ) {
@@ -2644,7 +2644,7 @@ void idGameLocal::CalcFov( float base_fov, float &fov_x, float &fov_y ) const {
 	float	ratio_y;
 	
 	if ( !sys->FPU_StackIsEmpty() ) {
-		Printf( sys->FPU_GetState() );
+		Printf( "%s", sys->FPU_GetState() );
 		Error( "idGameLocal::CalcFov: FPU stack not empty" );
 	}
 
@@ -2656,7 +2656,7 @@ void idGameLocal::CalcFov( float base_fov, float &fov_x, float &fov_y ) const {
 	// FIXME: somehow, this is happening occasionally
 	assert( fov_y > 0 );
 	if ( fov_y <= 0 ) {
-		Printf( sys->FPU_GetState() );
+		Printf( "%s", sys->FPU_GetState() );
 		Error( "idGameLocal::CalcFov: bad result" );
 	}
 
@@ -2693,7 +2693,7 @@ void idGameLocal::CalcFov( float base_fov, float &fov_x, float &fov_y ) const {
 	// FIXME: somehow, this is happening occasionally
 	assert( ( fov_x > 0 ) && ( fov_y > 0 ) );
 	if ( ( fov_y <= 0 ) || ( fov_x <= 0 ) ) {
-		Printf( sys->FPU_GetState() );
+		Printf( "%s", sys->FPU_GetState() );
 		Error( "idGameLocal::CalcFov: bad result" );
 	}
 }
