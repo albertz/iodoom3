@@ -507,7 +507,7 @@ idLCP_Square::Solve
 bool idLCP_Square::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, const idVecX &o_lo, const idVecX &o_hi, const int *o_boxIndex ) {
 	int i, j, n, limit, limitSide, boxStartIndex;
 	float dir, maxStep, dot, s;
-	char *failed;
+	const char *failed;
 
 	// true when the matrix rows are 16 byte padded
 	padded = ((o_m.GetNumRows()+3)&~3) == o_m.GetNumColumns();
@@ -1297,7 +1297,7 @@ idLCP_Symmetric::Solve
 bool idLCP_Symmetric::Solve( const idMatX &o_m, idVecX &o_x, const idVecX &o_b, const idVecX &o_lo, const idVecX &o_hi, const int *o_boxIndex ) {
 	int i, j, n, limit, limitSide, boxStartIndex;
 	float dir, maxStep, dot, s;
-	char *failed;
+	const char *failed;
 
 	// true when the matrix rows are 16 byte padded
 	padded = ((o_m.GetNumRows()+3)&~3) == o_m.GetNumColumns();

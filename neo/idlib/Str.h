@@ -322,7 +322,7 @@ protected:
 	void				EnsureAlloced( int amount, bool keepold = true );	// ensure string data buffer is large anough
 };
 
-char *					va( const char *fmt, ... ) id_attribute((format(printf,1,2)));
+const char *			va( const char *fmt, ... ) id_attribute((format(printf,1,2)));
 
 
 ID_INLINE void idStr::EnsureAlloced( int amount, bool keepold ) {
