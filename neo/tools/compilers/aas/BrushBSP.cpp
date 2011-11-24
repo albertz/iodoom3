@@ -1293,8 +1293,7 @@ void idBrushBSP::MakeOutsidePortals( void ) {
 	idBounds bounds;
 	idBrushBSPPortal *p, *portals[6];
 	idVec3 normal;
-	idPlane planes[6];
-
+	
 	// pad with some space so there will never be null volume leaves
 	bounds = treeBounds.Expand( 32 );
 

@@ -4763,8 +4763,6 @@ idGameLocal::SelectTimeGroup
 ============
 */
 void idGameLocal::SelectTimeGroup( int timeGroup ) {
-	int i = 0;
-
 	if ( timeGroup ) {
 		fast.Get( time, previousTime, msec, framenum, realClientTime );
 	} else {

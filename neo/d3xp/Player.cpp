@@ -8181,7 +8181,6 @@ void idPlayer::Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &di
 			damage = 1;
 		}
 
-		int oldHealth = health;
 		health -= damage;
 
 		if ( health <= 0 ) {
