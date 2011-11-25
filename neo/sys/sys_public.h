@@ -108,6 +108,11 @@ If you have questions concerning this license or the applicable additional terms
 	#define BUILD_OS_ID					2
 	#define CPUSTRING					"x86"
 	#define CPU_EASYARGS				1
+#elif __x86_64__
+	#define	BUILD_STRING				"linux-x86_64"
+	#define BUILD_OS_ID					2
+	#define CPUSTRING					"x86_64"
+	#define CPU_EASYARGS				1
 #elif defined(__ppc__)
 	#define	BUILD_STRING				"linux-ppc"
 	#define CPUSTRING					"ppc"
@@ -115,7 +120,7 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 #define _alloca							alloca
-#define _alloca16( x )					((void *)((((int)alloca( (x)+15 )) + 15) & ~15))
+#define _alloca16( x )					((void *)((((size_t)alloca( (x)+15 )) + 15) & ~15))
 
 #define ALIGN16( x )					x
 #define PACKED							__attribute__((packed))

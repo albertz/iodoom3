@@ -264,7 +264,7 @@ void *idHeap::Allocate( const dword bytes ) {
 	}
 	c_heapAllocRunningCount++;
 
-#if USE_LIBC_MALLOC
+#ifdef USE_LIBC_MALLOC
 	return malloc( bytes );
 #else
 	if ( !(bytes & ~255) ) {
@@ -288,7 +288,7 @@ void idHeap::Free( void *p ) {
 	}
 	c_heapAllocRunningCount--;
 
-#if USE_LIBC_MALLOC
+#ifdef USE_LIBC_MALLOC
 	free( p );
 #else
 	switch( ((byte *)(p))[-1] ) {
@@ -320,24 +320,24 @@ idHeap::Allocate16
 void *idHeap::Allocate16( const dword bytes ) {
 	byte *ptr, *alignedPtr;
 
-	ptr = (byte *) malloc( bytes + 16 + 4 );
+	ptr = (byte *) malloc( bytes + 16 + sizeof(std::ptrdiff_t) );
 	if ( !ptr ) {
 		if ( defragBlock ) {
 			idLib::common->Printf( "Freeing defragBlock on alloc of %i.\n", bytes );
 			free( defragBlock );
 			defragBlock = NULL;
-			ptr = (byte *) malloc( bytes + 16 + 4 );			
+			ptr = (byte *) malloc( bytes + 16 + sizeof(std::ptrdiff_t) );
 			AllocDefragBlock();
 		}
 		if ( !ptr ) {
 			common->FatalError( "malloc failure for %i", bytes );
 		}
 	}
-	alignedPtr = (byte *) ( ( (int) ptr ) + 15 & ~15 );
-	if ( alignedPtr - ptr < 4 ) {
+	alignedPtr = (byte *) ( ( (std::ptrdiff_t) ptr ) + 15 & ~15 );
+	if ( alignedPtr - ptr < sizeof(std::ptrdiff_t) ) {
 		alignedPtr += 16;
 	}
-	*((int *)(alignedPtr - 4)) = (int) ptr;
+	*((long *)(alignedPtr - sizeof(std::ptrdiff_t))) = (std::ptrdiff_t) ptr;
 	return (void *) alignedPtr;
 }
 
@@ -347,7 +347,7 @@ idHeap::Free16
 ================
 */
 void idHeap::Free16( void *p ) {
-	free( (void *) *((int *) (( (byte *) p ) - 4)) );
+	free( (void *) *((std::ptrdiff_t *) (( (byte *) p ) - sizeof(std::ptrdiff_t))) );
 }
 
 /*
@@ -366,7 +366,7 @@ dword idHeap::Msize( void *p ) {
 		return 0;
 	}
 
-#if USE_LIBC_MALLOC
+#ifdef USE_LIBC_MALLOC
 	#ifdef _WIN32
 		return _msize( p );
 	#else
@@ -381,7 +381,7 @@ dword idHeap::Msize( void *p ) {
 			return ((mediumHeapEntry_s *)(((byte *)(p)) - ALIGN_SIZE( MEDIUM_HEADER_SIZE )))->size - ALIGN_SIZE( MEDIUM_HEADER_SIZE );
 		}
 		case LARGE_ALLOC: {
-			return ((idHeap::page_s*)(*((dword *)(((byte *)p) - ALIGN_SIZE( LARGE_HEADER_SIZE )))))->dataSize - ALIGN_SIZE( LARGE_HEADER_SIZE );
+			return ((idHeap::page_s*)(*((size_t *)(((byte *)p) - ALIGN_SIZE( LARGE_HEADER_SIZE )))))->dataSize - ALIGN_SIZE( LARGE_HEADER_SIZE );
 		}
 		default: {
 			idLib::common->FatalError( "idHeap::Msize: invalid memory block (%s)", idLib::sys->GetCallStackCurStr( 4 ) );
@@ -489,7 +489,7 @@ idHeap::page_s* idHeap::AllocatePage( dword bytes ) {
 			}
 		}
 
-		p->data		= (void *) ALIGN_SIZE( (int)((byte *)(p)) + sizeof( idHeap::page_s ) );
+		p->data		= (void *) ALIGN_SIZE( (size_t)((byte *)(p)) + sizeof( idHeap::page_s ) );
 		p->dataSize	= size - sizeof(idHeap::page_s);
 		p->firstFree = NULL;
 		p->largestFree = 0;
@@ -590,7 +590,7 @@ void idHeap::SmallFree( void *ptr ) {
 	((byte *)(ptr))[-1] = INVALID_ALLOC;
 
 	byte *d = ( (byte *)ptr ) - SMALL_HEADER_SIZE;
-	dword *dt = (dword *)ptr;
+	long *dt = (long *)ptr;
 	// index into the table with free small memory blocks
 	dword ix = *d;
 
@@ -599,7 +599,7 @@ void idHeap::SmallFree( void *ptr ) {
 		idLib::common->FatalError( "SmallFree: invalid memory block" );
 	}
 
-	*dt = (dword)smallFirstFree[ix];	// write next index
+	*dt = (size_t)smallFirstFree[ix];	// write next index
 	smallFirstFree[ix] = (void *)d;		// link
 }
 
@@ -929,8 +929,8 @@ void *idHeap::LargeAllocate( dword bytes ) {
 	}
 
 	byte *	d	= (byte*)(p->data) + ALIGN_SIZE( LARGE_HEADER_SIZE );
-	dword *	dw	= (dword*)(d - ALIGN_SIZE( LARGE_HEADER_SIZE ));
-	dw[0]		= (dword)p;				// write pointer back to page table
+	size_t * dw	= (size_t*)(d - ALIGN_SIZE( LARGE_HEADER_SIZE ));
+	dw[0]		= (size_t)p;			// write pointer back to page table
 	d[-1]		= LARGE_ALLOC;			// allocation identifier
 
 	// link to 'large used page list'
@@ -958,7 +958,7 @@ void idHeap::LargeFree( void *ptr) {
 	((byte *)(ptr))[-1] = INVALID_ALLOC;
 
 	// get page pointer
-	pg = (idHeap::page_s *)(*((dword *)(((byte *)ptr) - ALIGN_SIZE( LARGE_HEADER_SIZE ))));
+	pg = (idHeap::page_s *)(*((size_t *)(((byte *)ptr) - ALIGN_SIZE( LARGE_HEADER_SIZE ))));
 
 	// unlink from doubly linked list
 	if ( pg->prev ) {
@@ -1116,7 +1116,7 @@ void *Mem_Alloc16( const int size ) {
 	}
 	void *mem = mem_heap->Allocate16( size );
 	// make sure the memory is 16 byte aligned
-	assert( ( ((int)mem) & 15) == 0 );
+	assert( ( ((size_t)mem) & 15) == 0 );
 	return mem;
 }
 
@@ -1137,7 +1137,7 @@ void Mem_Free16( void *ptr ) {
 		return;
 	}
 	// make sure the memory is 16 byte aligned
-	assert( ( ((int)ptr) & 15) == 0 );
+	assert( ( ((size_t)ptr) & 15) == 0 );
  	mem_heap->Free16( ptr );
 }
 

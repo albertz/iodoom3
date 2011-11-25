@@ -256,6 +256,21 @@ double Sys_GetClockTicks( void ) {
 						  "pop %%ebx\n"
 						  : "=r" (lo), "=r" (hi) );
 	return (double) lo + (double) 0xFFFFFFFF * hi;
+#elif defined( __x86_64__ )
+	unsigned long lo, hi;
+
+	__asm__ __volatile__ (
+						  "push %%rbx\n"			\
+						  "push %%rax\n"			\
+						  "xor %%rax,%%rax\n"		\
+						  "cpuid\n"					\
+						  "rdtsc\n"					\
+						  "mov %%rax,%0\n"			\
+						  "mov %%rdx,%1\n"			\
+						  "pop %%rax\n"				\
+						  "pop %%rbx\n"
+						  : "=r" (lo), "=r" (hi) );
+	return (double) lo + (double) 0xFFFFFFFF * hi;	
 #else
 #error unsupported CPU
 #endif
