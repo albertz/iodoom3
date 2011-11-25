@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #import <unistd.h>
 #import <pthread.h>
 
+#import <CoreServices/CoreServices.h>
 #import <Foundation/Foundation.h>
 #import <Carbon/Carbon.h>
 #import <AppKit/AppKit.h>
@@ -45,6 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 #import <fenv.h>
 #import <sys/ucontext.h>
 #import <mach/thread_status.h>
+
 
 #define	MAX_KEYS		256
 
@@ -105,7 +107,12 @@ static OSErr DoRegCodeDialog( char* ioRegCode1 );
 		NSAssert(sizeof(bool) == 1, @"sizeof(bool) should equal 1 byte");
         [self quakeMain];
     } NS_HANDLER {
-        Sys_Error( (const char *)[ [ localException reason ] cString ] );
+
+#if defined(MAC_OS_X_VERSION_10_4)
+        Sys_Error( (const char *)[ [ localException reason ] UTF8String ] );
+#else
+		Sys_Error( (const char *)[ [ localException reason ] cString ] );
+#endif
     } NS_ENDHANDLER;
     Sys_Quit();
 }
@@ -382,7 +389,11 @@ extern void CL_Quit_f(void);
 			retval = FALSE;
 		}
 		else {
+#if defined(MAC_OS_X_VERSION_10_4)
+			[userDefaults setObject:[NSString stringWithUTF8String: regCode] forKey:kRegKey];
+#else
 			[userDefaults setObject:[NSString stringWithCString: regCode] forKey:kRegKey];
+#endif
 			[userDefaults synchronize];
 		}
 	}
@@ -400,6 +411,7 @@ extern void CL_Quit_f(void);
 		NSRunAlertPanel(@GAME_NAME, messsage, nil, nil, nil);
 		return FALSE;
 	}
+
 	return TRUE;
 }
 
@@ -417,7 +429,11 @@ Sys_EXEPath
 */
 const char *Sys_EXEPath( void ) {
 	static char exepath[ 1024 ];
+#if defined(MAC_OS_X_VERSION_10_4)
+	strncpy( exepath, [ [ [ NSBundle mainBundle ] bundlePath ] UTF8String ], 1024 );
+#else
 	strncpy( exepath, [ [ [ NSBundle mainBundle ] bundlePath ] cString ], 1024 );
+#endif
 	return exepath;
 }
 
@@ -430,7 +446,12 @@ const char *Sys_DefaultSavePath(void) {
 #if defined( ID_DEMO_BUILD )
 	sprintf( savepath, "%s/Library/Application Support/Doom 3 Demo", [NSHomeDirectory() cString] );
 #else
+#if defined(MAC_OS_X_VERSION_10_4)
+	sprintf( savepath, "%s/Library/Application Support/Doom 3", [NSHomeDirectory() UTF8String] );
+#else
 	sprintf( savepath, "%s/Library/Application Support/Doom 3", [NSHomeDirectory() cString] );
+#endif
+	
 #endif
 	return savepath.c_str();
 }
@@ -442,7 +463,11 @@ Sys_DefaultBasePath
 */
 const char *Sys_DefaultBasePath(void) {
 	static char basepath[ 1024 ];
+#if defined(MAC_OS_X_VERSION_10_4)
+	strncpy( basepath, [ [ [ NSBundle mainBundle ] bundlePath ] UTF8String ], 1024 );
+#else
 	strncpy( basepath, [ [ [ NSBundle mainBundle ] bundlePath ] cString ], 1024 );
+#endif
 	char *snap = strrchr( basepath, '/' );
 	if ( snap ) {
 		*snap = '\0';
@@ -484,7 +509,7 @@ Sys_GetProcessorString
 const char *Sys_GetProcessorString( void ) {
 #if defined(__ppc__)
 	return "ppc CPU with AltiVec extensions";
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__x86_64__)
 	return "x86 CPU with MMX/SSE/SSE2/SSE3 extensions";
 #else
 	#error
@@ -519,7 +544,9 @@ typedef union {
 	double d;
 } hexdouble;
 
+#if defined(__ppc__)
 static int exception_mask = 0;
+#endif
 
 void Sys_FPU_EnableExceptions( int exceptions ) {
 #if 0
@@ -659,7 +686,7 @@ double Sys_ClockTicksPerSecond(void) {
 	long gestaltSpeed, ioKitSpeed = -1;
 	
 	// GESTALT
-	
+
 	// gestaltProcClkSpeedMHz available in 10.3 needs to be used because CPU speeds have now
 	// exceeded the signed long that Gestalt returns.
 	long osVers;
@@ -672,7 +699,7 @@ double Sys_ClockTicksPerSecond(void) {
 		err = Gestalt(gestaltProcClkSpeed, &gestaltSpeed);
 		if (err == noErr)
 			gestaltSpeed = gestaltSpeed / 1000000;				
-	}	
+	}
 	
 	// IO KIT
 	
@@ -943,6 +970,10 @@ static pascal OSStatus RegCodeHandler( EventHandlerCallRef inHandler, EventRef i
  */
 static OSErr DoRegCodeDialog( char* ioRegCode1 )
 {
+#if defined(__x86_64__)
+#warning Implement this for 64 bit applications.
+	return noErr;
+#else
 	OSErr err;
 	RegCodeInfo regCodeInfo;
 	memset(&regCodeInfo, 0, sizeof(regCodeInfo));
@@ -975,7 +1006,8 @@ static OSErr DoRegCodeDialog( char* ioRegCode1 )
 		strcpy(ioRegCode1, regCodeInfo.prefRegCode1);
 	}
 	
-	return regCodeInfo.okPressed ? (OSErr)noErr : (OSErr)userCanceledErr;	
+	return regCodeInfo.okPressed ? (OSErr)noErr : (OSErr)userCanceledErr;
+#endif
 }
 
 /*

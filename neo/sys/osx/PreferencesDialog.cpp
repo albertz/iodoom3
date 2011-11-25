@@ -26,12 +26,14 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <list>
+#include <set>
+
 #include "../../idlib/precompiled.h"
 #include <Carbon/Carbon.h>
 #include "PreferencesDialog.h"
 #include "PickMonitor.h"
-#include <list>
-#include <set>
+
 
 static idCVar r_stretched( "r_stretched", "0", CVAR_ARCHIVE | CVAR_BOOL, "Used stretched resolution" );
 
@@ -833,7 +835,7 @@ OSStatus RunGameDisplayPreferencesDialog(GameDisplayInfo *outGDInfo, WindowRef i
 		outGDInfo->displayID = prefInfo->prefDisplayID;
 	}
 	
-	return prefInfo->okPressed ? noErr : userCanceledErr;
+	return prefInfo->okPressed ? (OSStatus)noErr : (OSStatus)userCanceledErr;
 }
 
 

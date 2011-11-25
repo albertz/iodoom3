@@ -39,6 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
+#import <ApplicationServices/ApplicationServices.h>
 
 #import <mach-o/dyld.h>
 #import <mach/mach.h>
@@ -55,6 +56,10 @@ CGDisplayErr		Sys_CaptureActiveDisplays(void);
 
 glwstate_t glw_state;
 static bool isHidden = false;
+
+#if defined(MAC_OS_X_VERSION_10_6)
+static unsigned int DisplayModeBitsPerPixel(CGDisplayModeRef mode);
+#endif
 
 @interface NSOpenGLContext (CGLContextAccess)
 - (CGLContextObj) cglContext;
@@ -192,7 +197,11 @@ static NSOpenGLPixelFormatAttribute *GetPixelAttributes( unsigned int multisampl
 	ADD_ATTR(NSOpenGLPFAColorSize);
 	colorDepth = 32;
 	if ( !cvarSystem->GetCVarBool( "r_fullscreen" ) ) {
+#if !defined(MAC_OS_X_VERSION_10_6)
 		desktopColorDepth = [[glw_state.desktopMode objectForKey: (id)kCGDisplayBitsPerPixel] intValue];
+#else
+		desktopColorDepth = DisplayModeBitsPerPixel(glw_state.desktopMode);
+#endif
 		if ( desktopColorDepth != 32 ) {
 			common->Warning( "Desktop display colors should be 32 bits for window rendering" );
 		}
@@ -227,11 +236,10 @@ static NSOpenGLPixelFormatAttribute *GetPixelAttributes( unsigned int multisampl
 	return pixelAttributes;
 }
 
-void Sys_UpdateWindowMouseInputRect(void) {		
+void Sys_UpdateWindowMouseInputRect(void) {
+	/*
 	NSRect           windowRect, screenRect;
 	NSScreen        *screen;
-
-	/*
 
 	// TTimo - I guess glw_state.window is bogus .. getting crappy data out of this
 
@@ -269,11 +277,18 @@ static bool CreateGameWindow(  glimpParms_t parms ) {
 	NSOpenGLPixelFormat				*pixelFormat;
 	CGDisplayErr					err;
 	unsigned int					multisamples;
+#if defined(__ppc__)
 	const long 						swap_limit = false;
 	int 							nsOpenGLCPSwapLimit = 203;
+#endif
             
 	glw_state.display = Sys_DisplayToUse();
+#if defined(MAC_OS_X_VERSION_10_6)
+	glw_state.desktopMode = CGDisplayCopyDisplayMode( glw_state.display );
+#else
 	glw_state.desktopMode = (NSDictionary *)CGDisplayCurrentMode( glw_state.display );
+#endif
+
 	if ( !glw_state.desktopMode ) {
 		common->Error( "Could not get current graphics mode for display 0x%08x\n", glw_state.display );
 	}
@@ -301,7 +316,11 @@ static bool CreateGameWindow(  glimpParms_t parms ) {
 			return false;
 		}
 
+#if !defined(MAC_OS_X_VERSION_10_6)
 		err = CGDisplaySwitchToMode(glw_state.display, (CFDictionaryRef)glw_state.gameMode);
+#else
+		err = CGDisplaySetDisplayMode(glw_state.display, glw_state.gameMode, NULL);
+#endif
 		if ( err != CGDisplayNoErr ) {
 			CGDisplayRestoreColorSyncSettings();
 			ReleaseAllDisplays();
@@ -327,7 +346,11 @@ static bool CreateGameWindow(  glimpParms_t parms ) {
     
 	if (!pixelFormat) {
 		CGDisplayRestoreColorSyncSettings();
+#if !defined(MAC_OS_X_VERSION_10_6)
 		CGDisplaySwitchToMode(glw_state.display, (CFDictionaryRef)glw_state.desktopMode);
+#else
+		CGDisplaySetDisplayMode(glw_state.display, glw_state.desktopMode, NULL);
+#endif
 		ReleaseAllDisplays();
 		common->Printf(  " No pixel format found\n");
 		return false;
@@ -337,7 +360,11 @@ static bool CreateGameWindow(  glimpParms_t parms ) {
 	OSX_SetGLContext([[NSOpenGLContext alloc] initWithFormat: pixelFormat shareContext: nil]);
 	if ( !OSX_GetNSGLContext() ) {
 		CGDisplayRestoreColorSyncSettings();
+#if !defined(MAC_OS_X_VERSION_10_6)
 		CGDisplaySwitchToMode(glw_state.display, (CFDictionaryRef)glw_state.desktopMode);
+#else
+		CGDisplaySetDisplayMode(glw_state.display, glw_state.desktopMode, NULL);
+#endif
 		ReleaseAllDisplays();
 		common->Printf(  "... +[NSOpenGLContext createWithFormat:share:] failed.\n" );
 		return false;
@@ -391,10 +418,20 @@ static bool CreateGameWindow(  glimpParms_t parms ) {
 
 		glw_state.window = NULL;
         
+#if !defined(MAC_OS_X_VERSION_10_7)
 		err = CGLSetFullScreen(OSX_GetCGLContext());
+#else
+		CGOpenGLDisplayMask displayMask = CGDisplayIDToOpenGLDisplayMask(glw_state.display);
+		err = CGLSetFullScreenOnDisplay(OSX_GetCGLContext(), displayMask);
+#endif
 		if (err) {
 			CGDisplayRestoreColorSyncSettings();
+			
+#if !defined(MAC_OS_X_VERSION_10_6)
 			CGDisplaySwitchToMode(glw_state.display, (CFDictionaryRef)glw_state.desktopMode);
+#else
+			CGDisplaySetDisplayMode(glw_state.display, glw_state.desktopMode, NULL);
+#endif
 			ReleaseAllDisplays();
 			common->Printf("CGLSetFullScreen -> %d (%s)\n", err, CGLErrorString(err));
 			return false;
@@ -413,8 +450,12 @@ static bool CreateGameWindow(  glimpParms_t parms ) {
 	[pixelFormat getValues: (int *) &glConfig.depthBits forAttribute: NSOpenGLPFADepthSize forVirtualScreen: 0];
 	[pixelFormat getValues: (int *) &glConfig.stencilBits forAttribute: NSOpenGLPFAStencilSize forVirtualScreen: 0];
 
+#if !defined(MAC_OS_X_VERSION_10_6)
 	glConfig.displayFrequency = [[glw_state.gameMode objectForKey: (id)kCGDisplayRefreshRate] intValue];
-    
+#else
+	glConfig.displayFrequency = CGDisplayModeGetRefreshRate(glw_state.gameMode);	
+#endif
+
 	common->Printf(  "ok\n" );
 
 	return true;
@@ -442,7 +483,12 @@ void Sys_ResumeGL () {
 			} else {
 				CGLError err;
                 
+#if !defined(MAC_OS_X_VERSION_10_6)
 				err = CGLSetFullScreen(OSX_GetCGLContext());
+#else
+				CGOpenGLDisplayMask displayMask = CGDisplayIDToOpenGLDisplayMask(glw_state.display);
+				err = CGLSetFullScreenOnDisplay(OSX_GetCGLContext(), displayMask);
+#endif
 				if (err)
 					common->Printf("CGLSetFullScreen -> %d (%s)\n", err, CGLErrorString(err));
 			}
@@ -562,7 +608,11 @@ static void _GLimp_RestoreOriginalVideoSettings() {
 	// get any notifications about what the current display mode really is.  For now,
 	// we just always force it back to what mode we remember the desktop being in.
 	if (glConfig.isFullscreen) {
+#if !defined(MAC_OS_X_VERSION_10_6)
 		err = CGDisplaySwitchToMode(glw_state.display, (CFDictionaryRef)glw_state.desktopMode);
+#else
+		err = CGDisplaySetDisplayMode(glw_state.display, glw_state.desktopMode, NULL);
+#endif
 		if ( err != CGDisplayNoErr )
 			common->Printf(  " Unable to restore display mode!\n" );
 
@@ -1261,12 +1311,13 @@ void GLW_InitExtensions( void ) { }
 unsigned long Sys_QueryVideoMemory() {
 	CGLError err;
 	CGLRendererInfoObj rendererInfo, rendererInfos[MAX_RENDERER_INFO_COUNT];
-	long rendererInfoIndex, rendererInfoCount = MAX_RENDERER_INFO_COUNT;
-	long rendererIndex, rendererCount;
-	long maxVRAM = 0, vram = 0;
-	long accelerated;
-	long rendererID;
-	long totalRenderers = 0;
+	GLint rendererInfoIndex, rendererInfoCount = MAX_RENDERER_INFO_COUNT;
+	GLint rendererIndex;
+	GLint rendererCount;
+	GLint maxVRAM = 0, vram = 0;
+	GLint accelerated;
+	GLint rendererID;
+	GLint totalRenderers = 0;
     
 	err = CGLQueryRendererInfo(CGDisplayIDToOpenGLDisplayMask(Sys_DisplayToUse()), rendererInfos, &rendererInfoCount);
 	if (err) {
@@ -1412,7 +1463,12 @@ bool Sys_Unhide() {
 	}
     
 	// Restore the game mode
+#if !defined(MAC_OS_X_VERSION_10_6)
 	err = CGDisplaySwitchToMode(glw_state.display, (CFDictionaryRef)glw_state.gameMode);
+#else
+	err = CGDisplaySetDisplayMode(glw_state.display, glw_state.gameMode, NULL);
+#endif
+
 	if ( err != CGDisplayNoErr ) {
 		ReleaseAllDisplays();
 		Sys_UnfadeScreens();
@@ -1421,7 +1477,12 @@ bool Sys_Unhide() {
 	}
 
 	// Reassociate the GL context and the screen
+#if !defined(MAC_OS_X_VERSION_10_6)
 	glErr = CGLSetFullScreen(OSX_GetCGLContext());
+#else
+	CGOpenGLDisplayMask displayMask = CGDisplayIDToOpenGLDisplayMask(glw_state.display);
+	err = CGLSetFullScreenOnDisplay(OSX_GetCGLContext(), displayMask);
+#endif
 	if (glErr) {
 		ReleaseAllDisplays();
 		Sys_UnfadeScreens();
@@ -1472,9 +1533,11 @@ void GLimp_ActivateContext( void ) {
 
 void GLimp_EnableLogging(bool stat) { }
 
+#if !defined(MAC_OS_X_VERSION_10_6)
 NSDictionary *Sys_GetMatchingDisplayMode( glimpParms_t parms ) {
 	NSArray *displayModes;
 	NSDictionary *mode;
+
 	unsigned int modeIndex, modeCount, bestModeIndex;
 	int verbose;
 	//	cvar_t *cMinFreq, *cMaxFreq;
@@ -1490,7 +1553,7 @@ NSDictionary *Sys_GetMatchingDisplayMode( glimpParms_t parms ) {
 	if ( minFreq > maxFreq ) {
 		common->Error( "r_minDisplayRefresh must be less than or equal to r_maxDisplayRefresh" );
 	}
-    
+
 	displayModes = (NSArray *)CGDisplayAvailableModes(glw_state.display);
 	if (!displayModes) {
 		common->Error( "CGDisplayAvailableModes returned NULL -- 0x%0x is an invalid display", glw_state.display);
@@ -1509,7 +1572,7 @@ NSDictionary *Sys_GetMatchingDisplayMode( glimpParms_t parms ) {
 		id object;
 		int refresh;
         
-		mode = [displayModes objectAtIndex: modeIndex];
+		mode = (CGDisplayModeRef)[displayModes objectAtIndex: modeIndex];
 		if (verbose) {
 			common->Printf( " mode %d -- %s\n", modeIndex, [[mode description] cString]);
 		}
@@ -1560,7 +1623,7 @@ NSDictionary *Sys_GetMatchingDisplayMode( glimpParms_t parms ) {
 		
 		bestModeIndex = modeIndex;
 		if (verbose)
-			common->Printf( " -- OK\n", bestModeIndex);
+			common->Printf( " -- OK (%d)\n", bestModeIndex);
 	}
 
 	if (verbose)
@@ -1574,6 +1637,136 @@ NSDictionary *Sys_GetMatchingDisplayMode( glimpParms_t parms ) {
 	return [displayModes objectAtIndex: bestModeIndex];
 }
 
+	
+#else
+	
+static unsigned int DisplayModeBitsPerPixel(CGDisplayModeRef mode)
+{
+	unsigned int bitsPerPixel = 0;
+	CFStringRef pixelEncoding = CGDisplayModeCopyPixelEncoding(mode);
+	if (pixelEncoding)
+	{
+		if (CFStringCompare(pixelEncoding, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive))
+		{
+			bitsPerPixel = 32;
+		}
+		else if (CFStringCompare(pixelEncoding, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive))
+		{
+			bitsPerPixel = 16;
+		}
+		else if (CFStringCompare(pixelEncoding, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive))
+		{
+			bitsPerPixel = 8;
+		}
+		CFRelease(pixelEncoding);
+	}
+	return bitsPerPixel;
+}
+
+CGDisplayModeRef Sys_GetMatchingDisplayMode( glimpParms_t parms ) {
+	NSArray *displayModes;
+	CGDisplayModeRef mode;
+	
+	unsigned int modeIndex, modeCount, bestModeIndex;
+	int verbose;
+	//	cvar_t *cMinFreq, *cMaxFreq;
+	int minFreq, maxFreq;
+	unsigned int colorDepth;
+	
+	verbose = 0;
+	
+	colorDepth = 32;
+
+	minFreq = r_minDisplayRefresh.GetInteger();
+	maxFreq = r_maxDisplayRefresh.GetInteger();
+	if ( minFreq > maxFreq ) {
+		common->Error( "r_minDisplayRefresh must be less than or equal to r_maxDisplayRefresh" );
+	}
+	
+	displayModes = (NSArray *)CGDisplayCopyAllDisplayModes(glw_state.display, NULL);	
+	if (!displayModes) {
+		common->Error( "CGDisplayAvailableModes returned NULL -- 0x%0x is an invalid display", glw_state.display);
+	}
+	
+	modeCount = [displayModes count];
+	if (verbose) {
+		common->Printf( "%d modes avaliable\n", modeCount);
+		common->Printf( "Current mode is %s\n", [[(id)CGDisplayCopyDisplayMode(glw_state.display) description] UTF8String]);
+	}
+	
+	// Default to the current desktop mode
+	bestModeIndex = 0xFFFFFFFF;
+	
+	for ( modeIndex = 0; modeIndex < modeCount; ++modeIndex ) {
+		id object;
+		double refresh;
+		
+		mode = (CGDisplayModeRef)[displayModes objectAtIndex: modeIndex];
+		//if (verbose) {
+		//	common->Printf( " mode %d -- %s\n", modeIndex, [[mode description] UTF8String]);
+		//}
+		
+		
+		// Make sure we get the right size
+		if (CGDisplayModeGetWidth(mode) != parms.width ||
+			CGDisplayModeGetHeight(mode) != parms.height) {
+			if (verbose)
+				common->Printf( " -- bad size\n");
+			continue;
+		}
+		
+		// Make sure that our frequency restrictions are observed
+		refresh = CGDisplayModeGetRefreshRate(mode);
+		if (minFreq &&  refresh < minFreq) {
+			if (verbose)
+				common->Printf( " -- refresh too low\n");
+			continue;
+		}
+		
+		if (maxFreq && refresh > maxFreq) {
+			if (verbose)
+				common->Printf( " -- refresh too high\n");
+			continue;
+		}
+
+		if (DisplayModeBitsPerPixel(mode) != colorDepth) {
+			if (verbose)
+				common->Printf( " -- bad depth\n");
+			continue;
+		}
+/*
+		object = [mode objectForKey: (id)kCGDisplayModeIsStretched];
+		if ( object ) {
+			if ( [object boolValue] != cvarSystem->GetCVarBool( "r_stretched" ) ) {
+				if (verbose)
+					common->Printf( " -- bad stretch setting\n");
+				continue;
+			}
+		}
+		else {
+			if ( cvarSystem->GetCVarBool( "r_stretched" ) ) {
+				if (verbose)
+					common->Printf( " -- stretch requested, stretch property not available\n");
+				continue;
+			}
+		}*/
+		
+		bestModeIndex = modeIndex;
+		if (verbose)
+			common->Printf( " -- OK (%d)\n", bestModeIndex);
+	}
+	
+	if (verbose)
+		common->Printf( " bestModeIndex = %d\n", bestModeIndex);
+	
+	if (bestModeIndex == 0xFFFFFFFF) {
+		common->Printf( "No suitable display mode available.\n");
+		return nil;
+	}
+	
+	return (CGDisplayModeRef)[displayModes objectAtIndex: bestModeIndex];
+}
+#endif
 
 #define MAX_DISPLAYS 128
 

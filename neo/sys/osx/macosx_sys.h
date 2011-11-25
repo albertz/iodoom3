@@ -35,8 +35,13 @@ typedef struct {
 typedef struct
 {
     CGDirectDisplayID	display;
+#if !defined(MAC_OS_X_VERSION_10_6)
     NSDictionary		*desktopMode;
     NSDictionary		*gameMode;
+#else
+	CGDisplayModeRef	desktopMode;
+    CGDisplayModeRef	gameMode;
+#endif
 
     CGDisplayCount		displayCount;
     glwgamma_t			*originalDisplayGammaTables;

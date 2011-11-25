@@ -57,7 +57,9 @@ static bool		mouseActive		= false;
 static bool		inputRectValid	= NO;
 static CGRect	inputRect;
 static const void *sKLuchrData	= NULL;
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
 static const void *sKLKCHRData	= NULL;
+#endif
 
 int	vkeyToDoom3Key[256] = {
 	/*0x00*/	'a', 's', 'd', 'f', 'h', 'g', 'z', 'x',
@@ -124,8 +126,10 @@ static const int *vkeyTable = vkeyToDoom3Key;
  ===========
  */
 void Sys_InitScanTable( void ) {
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
 	KeyboardLayoutRef kbLayout;
-	
+#endif
+
 	idStr lang = cvarSystem->GetCVarString( "sys_lang" );
 	if ( lang.Length() == 0 ) {
 		lang = "english";
@@ -139,6 +143,7 @@ void Sys_InitScanTable( void ) {
 		vkeyTable = vkeyToDoom3Key_German;
 	}
 
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
 	if ( KLGetCurrentKeyboardLayout( &kbLayout )  == 0 ) {
 		if ( KLGetKeyboardLayoutProperty( kbLayout, kKLuchrData, &sKLuchrData ) ) {
 			common->Warning("KLGetKeyboardLayoutProperty failed");
@@ -152,6 +157,9 @@ void Sys_InitScanTable( void ) {
 	if ( !sKLuchrData && !sKLKCHRData ) {
 		common->Warning("Keyboard input initialziation failed");
 	}
+#else
+#warning Implement this in OSX >= 10.5
+#endif
 }
 
 void Sys_InitInput( void ) {
@@ -246,12 +254,12 @@ void processMouseMovedEvent( NSEvent *mouseMovedEvent ) {
 
 inline bool OSX_LookupCharacter(unsigned short vkey, unsigned int modifiers, bool keyDownFlag, unsigned char *outChar)
 {
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
 	UInt32 translated;
 	UInt32 deadKeyState = 0;
 	UniChar unicodeString[16];
 	UniCharCount actualStringLength = 0;
 	static UInt32 keyTranslateState = 0;
-	
 	// Only want character if Translate() returns a single character
 	if ( sKLuchrData ) {
 		UCKeyTranslate( (UCKeyboardLayout*)sKLuchrData, vkey, keyDownFlag ? kUCKeyActionDown : kUCKeyActionUp, modifiers,
@@ -269,6 +277,23 @@ inline bool OSX_LookupCharacter(unsigned short vkey, unsigned int modifiers, boo
 			return true;
 		}
 	}
+	
+#else
+	UInt32 deadKeyState = 0;
+	UniChar unicodeString[16];
+	UniCharCount actualStringLength = 0;
+	// Only want character if Translate() returns a single character
+	if ( sKLuchrData ) {
+		UCKeyTranslate( (UCKeyboardLayout*)sKLuchrData, vkey, keyDownFlag ? kUCKeyActionDown : kUCKeyActionUp, modifiers,
+					   LMGetKbdType(), 0, &deadKeyState, 16, &actualStringLength, unicodeString );
+		
+		if ( actualStringLength == 1 ) {
+			*outChar = (unsigned char)unicodeString[0];
+			return true;
+		}
+	}
+#endif
+
 	return false;
 }
 
@@ -433,8 +458,11 @@ void processEvent( NSEvent *event ) {
 
 void Posix_PollInput( void ) {
     NSEvent *event;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_5
+	NSUInteger eventMask;
+#else
     unsigned int eventMask;
-    
+#endif
     eventMask = NSAnyEventMask;
      
     while ( ( event = [ NSApp nextEventMatchingMask: eventMask
