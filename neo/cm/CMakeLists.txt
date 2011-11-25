@@ -1,6 +1,10 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 PROJECT (cm)
 
+IF(APPLE AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
+ADD_DEFINITIONS(-DMACOS_X=1)
+ENDIF()
+
 SET (cm_SOURCES
 	CollisionModel_contacts.cpp
 	CollisionModel_contents.cpp
