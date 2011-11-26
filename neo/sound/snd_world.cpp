@@ -1198,10 +1198,10 @@ void idSoundWorldLocal::WriteToSaveGameSoundChannel( idFile *saveGame, idSoundCh
 	saveGame->WriteInt( ch->trigger44kHzTime );
 	saveGame->WriteInt( ch->triggerGame44kHzTime );
 	WriteToSaveGameSoundShaderParams( saveGame, &ch->parms );
-	saveGame->WriteInt( (int)ch->leadinSample );
+	saveGame->Write( (size_t)ch->leadinSample, sizeof(size_t) );
 	saveGame->WriteInt( ch->triggerChannel );
-	saveGame->WriteInt( (int)ch->soundShader );
-	saveGame->WriteInt( (int)ch->decoder );
+	saveGame->Write( (size_t)ch->soundShader, sizeof(size_t) );
+	saveGame->Write( (size_t)ch->decoder, sizeof(size_t) );
 	saveGame->WriteFloat(ch->diversity );
 	saveGame->WriteFloat(ch->lastVolume );
 	for (int m = 0; m < 6; m++)
