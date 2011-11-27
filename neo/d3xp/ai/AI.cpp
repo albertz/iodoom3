@@ -1193,6 +1193,8 @@ void idAI::Think( void ) {
 				PlayChatter();
 				CheckBlink();
 				break;
+
+			case NUM_MOVETYPES: assert(false); break;
 			}
 		}
 
@@ -1513,7 +1515,6 @@ float idAI::TravelDistance( const idVec3 &start, const idVec3 &end ) const {
 	int			toArea;
 	float		dist;
 	idVec2		delta;
-	aasPath_t	path;
 
 	if ( !aas ) {
 		// no aas, so just take the straight line distance
