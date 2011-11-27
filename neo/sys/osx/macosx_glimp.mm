@@ -419,11 +419,11 @@ static bool CreateGameWindow(  glimpParms_t parms ) {
 
 		glw_state.window = NULL;
         
-#if !defined(MAC_OS_X_VERSION_10_7)
-		err = CGLSetFullScreen(OSX_GetCGLContext());
-#else
-		CGOpenGLDisplayMask displayMask = CGDisplayIDToOpenGLDisplayMask(glw_state.display);
+#if defined(MAC_OS_X_VERSION_10_6)
+        CGOpenGLDisplayMask displayMask = CGDisplayIDToOpenGLDisplayMask(glw_state.display);
 		err = CGLSetFullScreenOnDisplay(OSX_GetCGLContext(), displayMask);
+#else
+		err = CGLSetFullScreen(OSX_GetCGLContext());	
 #endif
 		if (err) {
 			CGDisplayRestoreColorSyncSettings();
