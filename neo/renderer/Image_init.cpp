@@ -239,7 +239,6 @@ static void R_AlphaRampImage( idImage *image ) {
 }
 
 
-
 /*
 ==================
 R_CreateDefaultImage

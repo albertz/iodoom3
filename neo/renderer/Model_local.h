@@ -50,9 +50,9 @@ public:
 	virtual void				PurgeModel();
 	virtual void				Reset() {};
 	virtual void				LoadModel();
-	virtual bool				IsLoaded();
+	virtual bool				IsLoaded() const;
 	virtual void				SetLevelLoadReferenced( bool referenced );
-	virtual bool				IsLevelLoadReferenced();
+	virtual bool				IsLevelLoadReferenced() const;
 	virtual void				TouchData();
 	virtual void				InitEmpty( const char *name );
 	virtual void				AddSurface( modelSurface_t surface );

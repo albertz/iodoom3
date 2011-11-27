@@ -208,9 +208,9 @@ public:
 	virtual void				LoadModel() = 0;
 
 	// internal use
-	virtual bool				IsLoaded() = 0;
+	virtual bool				IsLoaded() const = 0;
 	virtual void				SetLevelLoadReferenced( bool referenced ) = 0;
-	virtual bool				IsLevelLoadReferenced() = 0;
+	virtual bool				IsLevelLoadReferenced() const = 0;
 
 	// models that are already loaded at level start time
 	// will still touch their data to make sure they

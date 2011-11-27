@@ -1211,6 +1211,7 @@ void idGameBustOutWindow::UpdateBall( void ) {
 
 					if ( brick->powerup > POWERUP_NONE ) {
 						BOEntity *pUp = CreatePowerup( brick );
+						#pragma unused(pUp)
 					}
 
 					numBricks--;

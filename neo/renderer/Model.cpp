@@ -2238,7 +2238,7 @@ void idRenderModelStatic::WriteToDemoFile( class idDemoFile *f ) {
 idRenderModelStatic::IsLoaded
 ================
 */
-bool idRenderModelStatic::IsLoaded( void ) {
+bool idRenderModelStatic::IsLoaded( void ) const {
 	return !purged;
 }
 
@@ -2256,7 +2256,7 @@ void idRenderModelStatic::SetLevelLoadReferenced( bool referenced ) {
 idRenderModelStatic::IsLevelLoadReferenced
 ================
 */
-bool idRenderModelStatic::IsLevelLoadReferenced( void ) {
+bool idRenderModelStatic::IsLevelLoadReferenced( void ) const {
 	return levelLoadReferenced;
 }
 

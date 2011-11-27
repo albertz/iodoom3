@@ -1091,9 +1091,9 @@ bool R_LoadCubeImages( const char *imgName, cubeFiles_t extensions, byte *pics[6
 		"_up.tga", "_down.tga" };
 	const char  *axisSides[6] =  { "_px.tga", "_nx.tga", "_py.tga", "_ny.tga", 
 		"_pz.tga", "_nz.tga" };
-	char	**sides;
-	char	fullName[MAX_IMAGE_NAME];
-	int		width, height, size = 0;
+	const char	**sides;
+	char		fullName[MAX_IMAGE_NAME];
+	int			width, height, size = 0;
 
 	if ( extensions == CF_CAMERA ) {
 		sides = (char **)cameraSides;

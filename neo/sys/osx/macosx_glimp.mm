@@ -722,7 +722,7 @@ void GLimp_SetGamma(unsigned short red[256],
 /*****************************************************************************/
 
 #pragma mark -
-#pragma mark ¥ ATI_fragment_shader
+#pragma mark  ATI_fragment_shader
 
 static GLuint sGeneratingProgram = 0;
 static int sCurrentPass;

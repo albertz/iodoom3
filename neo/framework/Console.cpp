@@ -179,7 +179,7 @@ SCR_DrawFPS
 */
 #define	FPS_FRAMES	4
 float SCR_DrawFPS( float y ) {
-	char		*s;
+	const char	*s;
 	int			w;
 	static int	previousTimes[FPS_FRAMES];
 	static int	index;
@@ -266,7 +266,7 @@ float SCR_DrawAsyncStats( float y ) {
 
 		idStr msg;
 		idAsyncNetwork::server.GetAsyncStatsAvgMsg( msg );
-		SCR_DrawTextRightAlign( y, msg.c_str() );
+		SCR_DrawTextRightAlign( y, "%s", msg.c_str() );
 
 	} else if ( idAsyncNetwork::client.IsActive() ) {
 

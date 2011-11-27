@@ -365,6 +365,7 @@ bool idRenderSystemLocal::RegisterFont( const char *fontName, fontInfoEx_t &font
 			outFont->glyphs[i].s2			= readFloat();
 			outFont->glyphs[i].t2			= readFloat();
 			int junk /* font.glyphs[i].glyph */		= readInt();
+			#pragma unused(junk)
 			//FIXME: the +6, -6 skips the embedded fonts/ 
 			memcpy( outFont->glyphs[i].shaderName, &fdFile[fdOffset + 6], 32 - 6 );
 			fdOffset += 32;

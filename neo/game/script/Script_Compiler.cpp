@@ -208,7 +208,7 @@ idCompiler::idCompiler()
 */
 idCompiler::idCompiler() {
 	const char	**ptr;
-	int		id;
+	int			id;
 
 	// make sure we have the right # of opcodes in the table
 	assert( ( sizeof( opcodes ) / sizeof( opcodes[ 0 ] ) ) == ( NUM_OPCODES + 1 ) );

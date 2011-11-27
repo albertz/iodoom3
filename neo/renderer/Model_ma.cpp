@@ -402,6 +402,7 @@ bool MA_ParseFace(idParser& parser, maAttribHeader_t* header) {
 
 		} else if(!token.Icmp("mu")) {
 			int uvstIndex = parser.ParseInt();
+			#pragma unused(uvstIndex)
 			int count = parser.ParseInt();
 			if(count != 3) {
 				throw idException(va("Maya Loader '%s': Invalid texture coordinates.", parser.GetFileName()));
@@ -697,9 +698,9 @@ void MA_ParseMesh(idParser& parser) {
 		pMesh->vertexes[(int)pMesh->vertTransforms[i].w] +=  pMesh->vertTransforms[i].ToVec3();
 	}
 	
-	MA_VERBOSE((va("MESH %s - parent %s\n", header.name, header.parent)));
-	MA_VERBOSE((va("\tverts:%d\n",maGlobal.currentObject->mesh.numVertexes)));
-	MA_VERBOSE((va("\tfaces:%d\n",maGlobal.currentObject->mesh.numFaces)));
+	MA_VERBOSE(("%s", va("MESH %s - parent %s\n", header.name, header.parent)));
+	MA_VERBOSE(("%s", va("\tverts:%d\n",maGlobal.currentObject->mesh.numVertexes)));
+	MA_VERBOSE(("%s", va("\tfaces:%d\n",maGlobal.currentObject->mesh.numFaces)));
 }
 
 void MA_ParseFileNode(idParser& parser) {

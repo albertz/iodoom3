@@ -1434,7 +1434,6 @@ float idAI::TravelDistance( const idVec3 &start, const idVec3 &end ) const {
 	int			toArea;
 	float		dist;
 	idVec2		delta;
-	aasPath_t	path;
 
 	if ( !aas ) {
 		// no aas, so just take the straight line distance
@@ -3764,7 +3763,6 @@ void idAI::UpdateEnemyPosition( void ) {
 	int				enemyAreaNum;
 	int				areaNum;
 	aasPath_t		path;
-	predictedPath_t predictedPath;
 	idVec3			enemyPos;
 	bool			onGround;
 

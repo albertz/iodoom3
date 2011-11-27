@@ -126,7 +126,11 @@ void idAudioHardwareOSX::Reset() {
 		if ( status != kAudioHardwareNoError ) {
 			common->Warning( "idAudioHardwareOSX::Reset: AudioDeviceStop failed. status: %s", ExtractStatus( status ) );
 		}
+#if defined(MAC_OS_X_VERSION_10_6)
+		status = AudioDeviceDestroyIOProcID(selectedDevice, DeviceIOProc);
+#else
 		status = AudioDeviceRemoveIOProc( selectedDevice, DeviceIOProc );
+#endif
 		if ( status != kAudioHardwareNoError ) {
 			common->Warning( "idAudioHardwareOSX::Reset: AudioDeviceRemoveIOProc failed. status %s\n", ExtractStatus( status ) );
 		}
@@ -244,7 +248,7 @@ bool idAudioHardwareOSX::Initialize( ) {
 			InitFailed();
 			return false;
 		}
-		common->Printf( "  %d: ID %d, %s - ", i, deviceList[ i ], buf );
+		common->Printf( "  %d: ID %d, %s - ", i, (int)deviceList[ i ], buf );
 		size = 1024;
 		status = AudioDeviceGetProperty( deviceList[ i ], 0, false, kAudioDevicePropertyDeviceManufacturer, &size, buf );
 		if ( status != kAudioHardwareNoError ) {
@@ -258,7 +262,7 @@ bool idAudioHardwareOSX::Initialize( ) {
 
 	if ( s_device.GetInteger() != -1 && s_device.GetInteger() < deviceCount ) {
 		selectedDevice = deviceList[ s_device.GetInteger() ];
-		common->Printf( "s_device: device ID %d\n", selectedDevice );
+		common->Printf( "s_device: device ID %du\n", (int)selectedDevice );
 	} else {
 		size = sizeof( selectedDevice );
 		status = AudioHardwareGetProperty( kAudioHardwarePropertyDefaultOutputDevice, &size, &selectedDevice );
@@ -269,7 +273,7 @@ bool idAudioHardwareOSX::Initialize( ) {
 			InitFailed();
 			return false;
 		}
-		common->Printf( "select default device, ID %d\n", selectedDevice );
+		common->Printf( "select default device, ID %d\n", (int)selectedDevice );
 	}
 
 	free( deviceList );
@@ -289,7 +293,7 @@ bool idAudioHardwareOSX::Initialize( ) {
 	size = sizeof( sampleRate );
 	status = AudioDeviceGetProperty( selectedDevice, 0, false, kAudioDevicePropertyNominalSampleRate, &size, &sampleRate );
 	if ( status != kAudioHardwareNoError ) {
-		common->Warning( "AudioDeviceGetProperty %d kAudioDevicePropertyNominalSampleRate failed. status: %s", selectedDevice, ExtractStatus( status ) );
+		common->Warning( "AudioDeviceGetProperty %d kAudioDevicePropertyNominalSampleRate failed. status: %s", (int)selectedDevice, ExtractStatus( status ) );
 		InitFailed();
 		return false;
 	}
@@ -303,7 +307,7 @@ bool idAudioHardwareOSX::Initialize( ) {
 		common->Printf( "setting rate to: %g\n", sampleRate );		
 		status = AudioDeviceSetProperty( selectedDevice, NULL, 0, false, kAudioDevicePropertyNominalSampleRate, size, &sampleRate );
 		if ( status != kAudioHardwareNoError ) {
-			common->Warning( "AudioDeviceSetProperty %d kAudioDevicePropertyNominalSampleRate %g failed. status: %s", selectedDevice, sampleRate, ExtractStatus( status ) );
+			common->Warning( "AudioDeviceSetProperty %d kAudioDevicePropertyNominalSampleRate %g failed. status: %s", (int)selectedDevice, sampleRate, ExtractStatus( status ) );
 			InitFailed();
 			return false;
 		}
@@ -313,18 +317,18 @@ bool idAudioHardwareOSX::Initialize( ) {
 	size = sizeof( UInt32 );
 	status = AudioDeviceGetProperty( selectedDevice, 0, false, kAudioDevicePropertyBufferFrameSize, &size, &frameSize );
 	if ( status != kAudioHardwareNoError ) {
-		common->Warning( "AudioDeviceGetProperty %d kAudioDevicePropertyBufferFrameSize failed.status: %s", selectedDevice, ExtractStatus( status ) );
+		common->Warning( "AudioDeviceGetProperty %d kAudioDevicePropertyBufferFrameSize failed.status: %s", (int)selectedDevice, ExtractStatus( status ) );
 		InitFailed();
 		return false;
 	}
-	common->Printf( "current frame size: %d\n", frameSize );
+	common->Printf( "current frame size: %lu\n", frameSize );
 
 	// get the allowed frame size range
 	AudioValueRange frameSizeRange;
 	size = sizeof( AudioValueRange );
 	status = AudioDeviceGetProperty( selectedDevice, 0, false, kAudioDevicePropertyBufferFrameSizeRange, &size, &frameSizeRange );
 	if ( status != kAudioHardwareNoError ) {
-		common->Warning( "AudioDeviceGetProperty %d kAudioDevicePropertyBufferFrameSizeRange failed. status: %s", selectedDevice, ExtractStatus( status ) );
+		common->Warning( "AudioDeviceGetProperty %d kAudioDevicePropertyBufferFrameSizeRange failed. status: %s", (int)selectedDevice, ExtractStatus( status ) );
 		InitFailed();
 		return false;
 	}
@@ -338,11 +342,11 @@ bool idAudioHardwareOSX::Initialize( ) {
 
 	if ( frameSize != (unsigned int)MIXBUFFER_SAMPLES ) {
 		frameSize = MIXBUFFER_SAMPLES;
-		common->Printf( "setting frame size to: %d\n", frameSize );
+		common->Printf( "setting frame size to: %lu\n", frameSize );
 		size = sizeof( frameSize );
 		status = AudioDeviceSetProperty( selectedDevice, NULL, 0, false, kAudioDevicePropertyBufferFrameSize, size, &frameSize );
 		if ( status != kAudioHardwareNoError ) {
-			common->Warning( "AudioDeviceSetProperty %d kAudioDevicePropertyBufferFrameSize failed. status: %s", selectedDevice, ExtractStatus( status ) );
+			common->Warning( "AudioDeviceSetProperty %d kAudioDevicePropertyBufferFrameSize failed. status: %s", (int)selectedDevice, ExtractStatus( status ) );
 			InitFailed();
 			return false;
 		}
@@ -356,13 +360,18 @@ bool idAudioHardwareOSX::Initialize( ) {
 	size = 2 * sizeof( UInt32 );
 	status = AudioDeviceGetProperty( selectedDevice, 0, false, 	kAudioDevicePropertyPreferredChannelsForStereo, &size, &channels );
 	if ( status != kAudioHardwareNoError ) {
-		common->Warning( "AudioDeviceGetProperty %d kAudioDevicePropertyPreferredChannelsForStereo failed. status: %s", selectedDevice, ExtractStatus( status ) );
+		common->Warning( "AudioDeviceGetProperty %d kAudioDevicePropertyPreferredChannelsForStereo failed. status: %s", (int)selectedDevice, ExtractStatus( status ) );
 		InitFailed();
 		return false;
 	}
-	common->Printf( "using stereo channel IDs %d %d\n", channels[ 0 ], channels[ 1 ] );
+	common->Printf( "using stereo channel IDs %lu %lu\n", channels[ 0 ], channels[ 1 ] );
 
+#if defined(MAC_OS_X_VERSION_10_6)
+	AudioDeviceIOProcID ioProcID = NULL;
+	status = AudioDeviceCreateIOProcID(selectedDevice, DeviceIOProc, NULL, &ioProcID);
+#else
 	status = AudioDeviceAddIOProc( selectedDevice, DeviceIOProc, NULL );
+#endif
 	if ( status != kAudioHardwareNoError ) {
 		common->Warning( "AudioDeviceAddIOProc failed. status: %s", ExtractStatus( status ) );
 		InitFailed();
@@ -401,7 +410,7 @@ void idAudioHardwareOSX::GetAvailableNominalSampleRates( void ) {
 
 	status = AudioDeviceGetPropertyInfo( selectedDevice, 0, false, kAudioDevicePropertyAvailableNominalSampleRates, &size, NULL );
 	if ( status != kAudioHardwareNoError ) {
-		common->Warning( "AudioDeviceGetPropertyInfo %d kAudioDevicePropertyAvailableNominalSampleRates failed. status: %s", selectedDevice, ExtractStatus( status ) );
+		common->Warning( "AudioDeviceGetPropertyInfo %d kAudioDevicePropertyAvailableNominalSampleRates failed. status: %s", (int)selectedDevice, ExtractStatus( status ) );
 		return;
 	}
 	rangeCount = size / sizeof( AudioValueRange );
@@ -411,7 +420,7 @@ void idAudioHardwareOSX::GetAvailableNominalSampleRates( void ) {
 
 	status = AudioDeviceGetProperty( selectedDevice, 0, false, kAudioDevicePropertyAvailableNominalSampleRates, &size, rangeArray );
 	if ( status != kAudioHardwareNoError ) {
-		common->Warning( "AudioDeviceGetProperty %d kAudioDevicePropertyAvailableNominalSampleRates failed. status: %s", selectedDevice, ExtractStatus( status ) );
+		common->Warning( "AudioDeviceGetProperty %d kAudioDevicePropertyAvailableNominalSampleRates failed. status: %s", (int)selectedDevice, ExtractStatus( status ) );
 		free( rangeArray );
 		return;
 	}

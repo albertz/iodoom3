@@ -97,8 +97,8 @@ public:
 					BOBrick( BOEntity *_ent, float _x, float _y, float _width, float _height );
 					~BOBrick();
 
-	virtual void	WriteToSaveGame( idFile *savefile );
-	virtual void	ReadFromSaveGame( idFile *savefile, idGameBustOutWindow *game );
+	void			WriteToSaveGame( idFile *savefile );
+	void			ReadFromSaveGame( idFile *savefile, idGameBustOutWindow *game );
 
 	void			SetColor( idVec4 bcolor );
 	collideDir_t	checkCollision( idVec2 pos, idVec2 vel );

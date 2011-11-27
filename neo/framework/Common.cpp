@@ -1355,7 +1355,15 @@ static void Com_Crash_f( const idCmdArgs &args ) {
 		return;
 	}
 
+#if (_WIN32)
+	__debugbreak();
+#elif defined( __i386__ ) || defined( __x86_64__ )
+	__asm__ volatile ("int3");
+#elif defined( __ppc__ )
+	__asm__ volatile ("tw");
+#else
 	* ( int * ) 0 = 0x12345678;
+#endif
 }
 
 /*
