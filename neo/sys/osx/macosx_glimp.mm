@@ -197,13 +197,14 @@ static NSOpenGLPixelFormatAttribute *GetPixelAttributes( unsigned int multisampl
 	ADD_ATTR(NSOpenGLPFAColorSize);
 	colorDepth = 32;
 	if ( !cvarSystem->GetCVarBool( "r_fullscreen" ) ) {
-#if !defined(MAC_OS_X_VERSION_10_6)
-		desktopColorDepth = [[glw_state.desktopMode objectForKey: (id)kCGDisplayBitsPerPixel] intValue];
-#else
+#if defined(MAC_OS_X_VERSION_10_6)
 		desktopColorDepth = DisplayModeBitsPerPixel(glw_state.desktopMode);
+#else
+		desktopColorDepth = [[glw_state.desktopMode objectForKey: (id)kCGDisplayBitsPerPixel] intValue];
 #endif
 		if ( desktopColorDepth != 32 ) {
-			common->Warning( "Desktop display colors should be 32 bits for window rendering" );
+			common->Warning( "Desktop display colors should be 32 bits for window rendering (Is currently %d)", desktopColorDepth );
+			colorDepth = desktopColorDepth;
 		}
 	}
 	ADD_ATTR(colorDepth);

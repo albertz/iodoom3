@@ -61,7 +61,7 @@ static const void *sKLuchrData	= NULL;
 static const void *sKLKCHRData	= NULL;
 #endif
 
-int	vkeyToDoom3Key[256] = {
+const int	vkeyToDoom3Key[256] = {
 	/*0x00*/	'a', 's', 'd', 'f', 'h', 'g', 'z', 'x',
 	/*0x08*/	'c', 'v', '?', 'b', 'q', 'w', 'e', 'r',
 	/*0x10*/	'y', 't', '1', '2', '3', '4', '6', '5',
@@ -80,7 +80,7 @@ int	vkeyToDoom3Key[256] = {
 	/*0x78*/	K_F2, K_PGDN, K_F1, K_LEFTARROW, K_RIGHTARROW, K_DOWNARROW, K_UPARROW, K_POWER
 };
 
-int	vkeyToDoom3Key_French[256] = {
+const int	vkeyToDoom3Key_French[256] = {
 	/*0x00*/	'q',	's',		'd',	'f',		'h',		'g',		'w',		'x',
 	/*0x08*/	'c',	'v',		'?',	'b',		'a',		'z',		'e',		'r',
 	/*0x10*/	'y',	't',		'1',	'2',		'3',		'4',		'6',		'5',
@@ -99,7 +99,7 @@ int	vkeyToDoom3Key_French[256] = {
 	/*0x78*/	K_F2, K_PGDN, K_F1, K_LEFTARROW, K_RIGHTARROW, K_DOWNARROW, K_UPARROW, K_POWER
 };
 
-int	vkeyToDoom3Key_German[256] = {
+const int	vkeyToDoom3Key_German[256] = {
 	/*0x00*/	'a',	's',		'd',	'f',		'h',		'g',		'y',		'x',
 	/*0x08*/	'c',	'v',		'?',	'b',		'q',		'w',		'e',		'r',
 	/*0x10*/	'z',	't',		'1',	'2',		'3',		'4',		'6',		'5',

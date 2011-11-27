@@ -307,7 +307,12 @@ static int BuildResolutionList(CGDirectDisplayID inDisplayID, Res *ioList, Valid
 	else
 	{	
 		CGDirectDisplayID displayID = inDisplayID ? inDisplayID : kCGDirectMainDisplay;
+#if defined(MAC_OS_X_VERSION_10_6)
+		CFArrayRef modeArrayRef = CGDisplayCopyAllDisplayModes(displayID, NULL);
+#else
 		CFArrayRef modeArrayRef = CGDisplayAvailableModes(displayID);
+#endif
+
 		CFIndex numModes = CFArrayGetCount(modeArrayRef);
 		
 		for (i = 0; i < numModes; i++)
@@ -346,6 +351,10 @@ static int BuildResolutionList(CGDirectDisplayID inDisplayID, Res *ioList, Valid
 			if (success)
 				modes.insert(MakeRes(width, height, depth, resFlags));
 		}
+		
+#if defined(MAC_OS_X_VERSION_10_6)
+		CFRelease(modeArrayRef);
+#endif
 	}
 	
 	total = modes.size();
@@ -367,7 +376,12 @@ static void BuildRefreshRates(CGDirectDisplayID inDisplayID, int inWidth, int in
 {
 	CGDirectDisplayID displayID = inDisplayID ? inDisplayID : kCGDirectMainDisplay;
 	
+#if defined(MAC_OS_X_VERSION_10_6)
+	CFArrayRef modeArrayRef = CGDisplayCopyAllDisplayModes(displayID, NULL);
+#else
 	CFArrayRef modeArrayRef = CGDisplayAvailableModes(displayID);
+#endif
+	
 	CFIndex numModes = CFArrayGetCount(modeArrayRef);
 
 	inList->clear();
@@ -415,6 +429,10 @@ static void BuildRefreshRates(CGDirectDisplayID inDisplayID, int inWidth, int in
 	
 	// Remove duplicates - yes they can occur.
 	inList->unique();
+	
+#if defined(MAC_OS_X_VERSION_10_6)
+	CFRelease(modeArrayRef);
+#endif
 }
 
 static void BuildRefreshPopupButton(ControlRef inControl, std::list<Fixed>* inList)
