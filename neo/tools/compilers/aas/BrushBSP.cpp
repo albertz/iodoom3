@@ -1417,11 +1417,12 @@ void idBrushBSP::FloodThroughPortals_r( idBrushBSPNode *node, int contents, int 
 	idBrushBSPPortal *p;
 	int s;
 
-	if ( node->occupied ) {
-		common->Error( "FloodThroughPortals_r: node already occupied\n" );
-	}
 	if ( !node ) {
 		common->Error( "FloodThroughPortals_r: NULL node\n" );
+		return; // all that follows would dereference node, so just return..
+	}
+	if ( node->occupied ) {
+		common->Error( "FloodThroughPortals_r: node already occupied\n" );
 	}
 
 	node->occupied = depth;
