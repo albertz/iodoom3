@@ -219,6 +219,7 @@ bool idSoundShader::ParseShader( idLexer &src ) {
 				return false;
 			}
 			int reg1 = src.ParseFloat();
+            #pragma unused(reg0, reg1)
 			// no longer supported
 		}
 		// volume

@@ -1699,7 +1699,7 @@ CGDisplayModeRef Sys_GetMatchingDisplayMode( glimpParms_t parms ) {
 	bestModeIndex = 0xFFFFFFFF;
 	
 	for ( modeIndex = 0; modeIndex < modeCount; ++modeIndex ) {
-		id object;
+		//id object;
 		double refresh;
 		
 		mode = (CGDisplayModeRef)[displayModes objectAtIndex: modeIndex];
@@ -1860,7 +1860,6 @@ void Sys_SetScreenFade(glwgamma_t *table, float fraction) {
 #define FADE_DURATION 0.5
 void Sys_FadeScreens() {
 	CGDisplayCount displayIndex;
-	int stepIndex;
 	glwgamma_t *table;
 	NSTimeInterval start, current;
 	float time;
@@ -1888,7 +1887,6 @@ void Sys_FadeScreens() {
 void Sys_FadeScreen(CGDirectDisplayID display) {
 	CGDisplayCount displayIndex;
 	glwgamma_t *table;
-	int stepIndex;
 
 	common->Printf( "FIXME: Sys_FadeScreen\n" );
     
@@ -1925,7 +1923,6 @@ void Sys_FadeScreen(CGDirectDisplayID display) {
 
 void Sys_UnfadeScreens() {
 	CGDisplayCount displayIndex;
-	int stepIndex;
 	glwgamma_t *table;
 	NSTimeInterval start, current;
 	float time;
@@ -1956,7 +1953,6 @@ void Sys_UnfadeScreens() {
 
 void Sys_UnfadeScreen(CGDirectDisplayID display, glwgamma_t *table) {
 	CGDisplayCount displayIndex;
-	int stepIndex;
 	
 	common->Printf( "FIXME: Sys_UnfadeScreen\n" );
 
