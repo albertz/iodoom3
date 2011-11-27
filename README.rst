@@ -4,6 +4,7 @@ Doom 3 GPL source release
 This file contains the following sections:
 
 .. contents:: Table of contents
+ 
 
 GENERAL NOTES
 =============
