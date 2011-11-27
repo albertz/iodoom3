@@ -810,15 +810,11 @@ const char *idFileSystemLocal::BuildOSPath( const char *base, const char *game, 
 		testPath.StripFilename();
 
 		if ( testPath.HasUpper() ) {
-#if defined(MACOS_X)
-			idStr gamePath;
-			gamePath = game;
-			if (gamePath.HasUpper())
+
+#if !defined(MACOS_X)
+			common->Warning( "Non-portable: path contains uppercase characters: %s", testPath.c_str() );
 #endif
-			{
-				common->Warning( "Non-portable: path contains uppercase characters: %s", gamePath.c_str() );
-			}
-			
+
 			// attempt a fixup on the fly
 			if ( fs_caseSensitiveOS.GetBool() ) {
 				testPath.ToLower();
