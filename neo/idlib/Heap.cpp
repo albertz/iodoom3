@@ -347,7 +347,7 @@ idHeap::Free16
 ================
 */
 void idHeap::Free16( void *p ) {
-	free( (void *) *((int *) (( (byte *) p ) - sizeof(size_t))) );
+	free( (void *) *((size_t *) (( (byte *) p ) - sizeof(size_t))) );
 }
 
 /*
