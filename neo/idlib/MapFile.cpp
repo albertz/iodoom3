@@ -46,10 +46,8 @@ StringCRC
 */
 ID_INLINE unsigned int StringCRC( const char *str ) {
 	unsigned int i, crc;
-	const unsigned char *ptr;
 
 	crc = 0;
-	ptr = reinterpret_cast<const unsigned char*>(str);
 	for ( i = 0; str[i]; i++ ) {
 		crc ^= str[i] << (i & 3);
 	}

@@ -108,7 +108,6 @@ int idBase64::Decode( byte *to ) const {
 		tab_init = 1;
 	}
 
-	w = 0;
 	i = 0;
 	n = 0;
 	byte in[4] = {0,0,0,0};
@@ -128,7 +127,6 @@ int idBase64::Decode( byte *to ) const {
 				w >>= 8;
 			}
 			i = 0;
-			w = 0;
 		}
 	}
 	return n;

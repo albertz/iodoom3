@@ -85,7 +85,7 @@ void idToken::NumberValue( void ) {
 				else {
 					div = false;
 				}
-				pow = 0;
+
 				for ( pow = 0; *p; p++ ) {
 					pow = pow * 10 + (int) (*p - '0');
 				}
