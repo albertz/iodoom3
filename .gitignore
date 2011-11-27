@@ -1,4 +1,15 @@
 build
+doom.x86
+doom.x86_64
+*.so
+scons.signatures.dblite
+site.conf
+*.pyc
+*.o
+*.lo
+cscope.out
+.*.sw*
+core*
 *.user
 *.sdf
 *.opensdf

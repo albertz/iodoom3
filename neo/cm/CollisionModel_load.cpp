@@ -2,7 +2,7 @@
 ===========================================================================
 
 Doom 3 GPL Source Code
-Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").  
 
@@ -1360,7 +1360,7 @@ cm_polygon_t *idCollisionModelManagerLocal::TryMergePolygons( cm_model_t *model,
 	// check if the new polygon would still be convex
 	edgeNum = p1->edges[p1BeforeShare];
 	edge = model->edges + abs(edgeNum);
-	delta = model->vertices[edge->vertexNum[INTSIGNBITNOTSET(edgeNum)]].p - 
+	delta = model->vertices[edge->vertexNum[INTSIGNBITNOTSET(edgeNum)]].p -
 					model->vertices[edge->vertexNum[INTSIGNBITSET(edgeNum)]].p;
 	normal = p1->plane.Normal().Cross( delta );
 	normal.Normalize();
@@ -2025,8 +2025,8 @@ idCollisionModelManagerLocal::R_CreateAxialBSPTree
 ================
 */
 cm_node_t *idCollisionModelManagerLocal::R_CreateAxialBSPTree( cm_model_t *model, cm_node_t *node, const idBounds &bounds ) {
-	int planeType;
-	float planeDist;
+	int planeType = 0;
+	float planeDist = 0.0f;
 	cm_polygonRef_t *pref, *nextpref, *prevpref;
 	cm_brushRef_t *bref, *nextbref, *prevbref;
 	cm_node_t *frontNode, *backNode, *n;
@@ -2276,7 +2276,7 @@ idCollisionModelManagerLocal::GetVertex
 int idCollisionModelManagerLocal::GetVertex( cm_model_t *model, const idVec3 &v, int *vertexNum ) {
 	int i, hashKey, vn;
 	idVec3 vert, *p;
-	
+
 	for (i = 0; i < 3; i++) {
 		if ( idMath::Fabs(v[i] - idMath::Rint(v[i])) < INTEGRAL_EPSILON )
 			vert[i] = idMath::Rint(v[i]);
@@ -3195,13 +3195,13 @@ idCollisionModelManagerLocal::PrintModelInfo
 ==================
 */
 void idCollisionModelManagerLocal::PrintModelInfo( const cm_model_t *model ) {
-	common->Printf( "%6i vertices (%lu KB)\n", model->numVertices, (model->numVertices * sizeof(cm_vertex_t))>>10 );
-	common->Printf( "%6i edges (%lu KB)\n", model->numEdges, (model->numEdges * sizeof(cm_edge_t))>>10 );
+	common->Printf( "%6i vertices (%zu KB)\n", model->numVertices, (model->numVertices * sizeof(cm_vertex_t))>>10 );
+	common->Printf( "%6i edges (%zu KB)\n", model->numEdges, (model->numEdges * sizeof(cm_edge_t))>>10 );
 	common->Printf( "%6i polygons (%i KB)\n", model->numPolygons, model->polygonMemory>>10 );
 	common->Printf( "%6i brushes (%i KB)\n", model->numBrushes, model->brushMemory>>10 );
-	common->Printf( "%6i nodes (%lu KB)\n", model->numNodes, (model->numNodes * sizeof(cm_node_t))>>10 );
-	common->Printf( "%6i polygon refs (%lu KB)\n", model->numPolygonRefs, (model->numPolygonRefs * sizeof(cm_polygonRef_t))>>10 );
-	common->Printf( "%6i brush refs (%lu KB)\n", model->numBrushRefs, (model->numBrushRefs * sizeof(cm_brushRef_t))>>10 );
+	common->Printf( "%6i nodes (%zu KB)\n", model->numNodes, (model->numNodes * sizeof(cm_node_t))>>10 );
+	common->Printf( "%6i polygon refs (%zu KB)\n", model->numPolygonRefs, (model->numPolygonRefs * sizeof(cm_polygonRef_t))>>10 );
+	common->Printf( "%6i brush refs (%zu KB)\n", model->numBrushRefs, (model->numBrushRefs * sizeof(cm_brushRef_t))>>10 );
 	common->Printf( "%6i internal edges\n", model->numInternalEdges );
 	common->Printf( "%6i sharp edges\n", model->numSharpEdges );
 	common->Printf( "%6i contained polygons removed\n", model->numRemovedPolys );

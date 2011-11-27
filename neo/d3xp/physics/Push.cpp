@@ -2,7 +2,7 @@
 ===========================================================================
 
 Doom 3 GPL Source Code
-Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").  
 
@@ -802,6 +802,7 @@ int idPush::TryRotatePushEntity( trace_t &results, idEntity *check, idClipModel 
 	newRotation.Set( rotation.GetOrigin(), rotation.GetVec(), checkAngle );
 	// NOTE:	this code prevents msvc 6.0 & 7.0 from screwing up the above code in
 	//			release builds moving less floats than it should
+	// XXX Is this needed anymore?
 	static float shit = checkAngle;
 	#pragma unused(shit)
 

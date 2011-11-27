@@ -112,7 +112,7 @@ If you have questions concerning this license or the applicable additional terms
 	#define	BUILD_STRING				"linux-x86_64"
 	#define BUILD_OS_ID					2
 	#define CPUSTRING					"x86_64"
-	#define CPU_EASYARGS				1
+	#define CPU_EASYARGS				0
 #elif defined(__ppc__)
 	#define	BUILD_STRING				"linux-ppc"
 	#define CPUSTRING					"ppc"
@@ -331,9 +331,9 @@ const char *	Sys_GetCallStackCurAddressStr( int depth );
 void			Sys_ShutdownSymbols( void );
 
 // DLL loading, the path should be a fully qualified OS path to the DLL file to be loaded
-int				Sys_DLL_Load( const char *dllName );
-void *			Sys_DLL_GetProcAddress( int dllHandle, const char *procName );
-void			Sys_DLL_Unload( int dllHandle );
+size_t				Sys_DLL_Load( const char *dllName );
+void *			Sys_DLL_GetProcAddress( size_t dllHandle, const char *procName );
+void			Sys_DLL_Unload( size_t dllHandle );
 
 // event generation
 void			Sys_GenerateEvents( void );

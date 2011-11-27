@@ -2130,7 +2130,7 @@ int lwGetPolygons5( idFile *fp, int cksize, lwPolygonList *plist, int ptoffset )
    lwPolygon *pp;
    lwPolVert *pv;
    unsigned char *buf, *bp;
-   int i, j, nv, nverts, npols;
+   long i, j, nv, nverts, npols;
 
 
    if ( cksize == 0 ) return 1;
@@ -2858,7 +2858,7 @@ Read polygon tags from a PTAG chunk in an LWO2 file.
 int lwGetPolygonTags( idFile *fp, int cksize, lwTagList *tlist, lwPolygonList *plist )
 {
 	unsigned int type;
-	int rlen = 0, i, j;
+	long rlen = 0, i, j;
 
 	set_flen( 0 );
 	type = getU4( fp );
