@@ -46,7 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 		#ifdef _DEBUG
 			#define ID_CONSOLE_LOCK 0
 		#else
-			#define ID_CONSOLE_LOCK 1
+			#define ID_CONSOLE_LOCK 0
 		#endif
 	#else
 		#define ID_CONSOLE_LOCK 0
