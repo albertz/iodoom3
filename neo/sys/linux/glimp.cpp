@@ -632,6 +632,12 @@ int Sys_GetVideoRam( void ) {
 		}
 	}
 	// try ATI /proc read ( for the lack of a better option )
+	
+	// FIXME: /proc doesn't exist under FreeBSD and I'm very unsure if this
+	// code is working even under Linux. Maybe someone(tm) should rewrite
+	// this whole function with GL_NVX_gpu_memory_info and GL_ATI_meminfo
+	// which are available for years now...
+#ifndef __FreeBSD__
 	int fd;
 	if ( ( fd = open( "/proc/dri/0/umm", O_RDONLY ) ) != -1 ) {
 		int len;
@@ -662,6 +668,7 @@ int Sys_GetVideoRam( void ) {
 			common->Printf( "read /proc/dri/0/umm failed: %s\n", strerror( errno ) );
 		}
 	}
+#endif
 	common->Printf( "guess failed, return default low-end VRAM setting ( 64MB VRAM )\n" );
 	run_once = 64;
 	return run_once;
