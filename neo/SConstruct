@@ -152,38 +152,68 @@ else:
 		cpu = 'ppc'
 	else:
 		cpu = 'cpu'
-g_os = 'Linux'
+g_os = commands.getoutput('uname')
 
 # end system detection ---------------------------
 
 # default settings -------------------------------
 
-CC = 'gcc'
-CXX = 'g++'
-JOBS = '1'
-BUILD = 'debug'
-DEDICATED = '0'
-TARGET_CORE = '1'
-TARGET_GAME = '1'
-TARGET_D3XP = '1'
-TARGET_MONO = '0'
-TARGET_DEMO = '0'
-IDNET_HOST = ''
-GL_HARDLINK = '0'
-DEBUG_MEMORY = '0'
-LIBC_MALLOC = '1'
-ID_NOLANADDRESS = '0'
-ID_MCHECK = '2'
-BUILD_ROOT = 'build'
-ALSA = '1'
-SETUP = '0'
-SDK = '0'
-NOCONF = '0'
-NOCURL = '0'
-BUILD_GAMEPAK = '0'
-BASEFLAGS = ''
-SILENT = '0'
-
+if (g_os == 'Linux'):
+	CC = 'gcc'
+	CXX = 'g++'
+	JOBS = '1'
+	BUILD = 'debug'
+	DEDICATED = '0'
+	TARGET_CORE = '1'
+	TARGET_GAME = '1'
+	TARGET_D3XP = '1'
+	TARGET_MONO = '0'
+	TARGET_DEMO = '0'
+	IDNET_HOST = ''
+	GL_HARDLINK = '0'
+	DEBUG_MEMORY = '0'
+	LIBC_MALLOC = '1'
+	ID_NOLANADDRESS = '0'
+	ID_MCHECK = '2'
+	BUILD_ROOT = 'build'
+	ALSA = '1'
+	SETUP = '0'
+	SDK = '0'
+	NOCONF = '0'
+	NOCURL = '0'
+	BUILD_GAMEPAK = '0'
+	BASEFLAGS = ''
+	SILENT = '0'
+	M4 = 'm4'
+ 
+if (g_os == 'FreeBSD'):
+	CC = 'gcc46'
+	CXX = 'g++46'
+	JOBS = '1'
+	BUILD = 'debug'
+	DEDICATED = '0'
+	TARGET_CORE = '1'
+	TARGET_GAME = '1'
+	TARGET_D3XP = '1'
+	TARGET_MONO = '0'
+	TARGET_DEMO = '0'
+	IDNET_HOST = ''
+	GL_HARDLINK = '0'
+	DEBUG_MEMORY = '0'
+	LIBC_MALLOC = '1'
+	ID_NOLANADDRESS = '0'
+	ID_MCHECK = '2'
+	BUILD_ROOT = 'build'
+	ALSA = '0'
+	SETUP = '0'
+	SDK = '0'
+	NOCONF = '0'
+	NOCURL = '0'
+	BUILD_GAMEPAK = '0'
+	BASEFLAGS = ''
+	SILENT = '0'
+	M4 = 'gm4'
+ 
 # end default settings ---------------------------
 
 # site settings ----------------------------------
@@ -339,7 +369,7 @@ if ( ID_MCHECK == '1' ):
 	BASECPPFLAGS.append( '-DID_MCHECK' )
 	
 # create the build environements
-g_base_env = Environment( ENV = os.environ, CC = CC, CXX = CXX, LINK = LINK, CPPFLAGS = BASECPPFLAGS, LINKFLAGS = BASELINKFLAGS, CPPPATH = CORECPPPATH, LIBPATH = CORELIBPATH )
+g_base_env = Environment( ENV = os.environ, CC = CC, CXX = CXX, LINK = LINK, CPPFLAGS = BASECPPFLAGS, LINKFLAGS = BASELINKFLAGS, CPPPATH = CORECPPPATH, LIBPATH = CORELIBPATH, M4 = M4, OS = g_os )
 scons_utils.SetupUtils( g_base_env )
 
 g_env = g_base_env.Clone()

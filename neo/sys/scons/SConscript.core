@@ -336,7 +336,12 @@ else:
 	sound_env.Append( CPPDEFINES = 'NO_ALSA' )
 sound_lib = sound_env.StaticLibrary( 'sound', sound_list )
 
-local_env.Append( LIBS = [ 'pthread', 'dl' ] )
+# 'dl' is a linuxism
+if (g_os == 'Linux'):
+    local_env.Append( LIBS = [ 'pthread', 'dl' ] )
+else:
+    local_env.Append( LIBS = [ 'pthread' ] )
+
 if ( local_dedicated == 0 ):
 	local_env.Append( LIBS = [ 'X11', 'Xext', 'Xxf86vm' ] ) # 'Xxf86dga', 
 	local_env.Append( LIBPATH = [ '/usr/X11R6/lib' ] )

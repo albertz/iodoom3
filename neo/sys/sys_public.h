@@ -133,6 +133,35 @@ If you have questions concerning this license or the applicable additional terms
 
 #endif
 
+// FreeBSD
+#ifdef __FreeBSD__
+
+#ifdef __i386__
+	#define	BUILD_STRING				"freebsd-x86"
+	#define BUILD_OS_ID					3
+	#define CPUSTRING					"x86"
+	#define CPU_EASYARGS				1
+#endif
+
+#define _alloca							alloca
+#define _alloca16( x )					((void *)((((int)alloca( (x)+15 )) + 15) & ~15))
+
+#define ALIGN16( x )					x
+#define PACKED							__attribute__((packed))
+
+#define PATHSEPERATOR_STR				"/"
+#define PATHSEPERATOR_CHAR				'/'
+
+#define __cdecl
+#define ASSERT							assert
+
+#define ID_INLINE						inline
+#define ID_STATIC_TEMPLATE
+
+#define assertmem( x, y )
+
+#endif
+ 
 #ifdef __GNUC__
 #define id_attribute(x) __attribute__(x)
 #else
