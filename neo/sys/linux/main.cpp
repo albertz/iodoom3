@@ -309,6 +309,11 @@ double Sys_ClockTicksPerSecond(void) {
 		return ret;
 	}
 
+#if defined( __FreeBSD__ )
+	ret = MeasureClockTicks();
+	init = true;
+	common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 ); 
+#else
 	fd = open( "/proc/cpuinfo", O_RDONLY );
 	if ( fd == -1 ) {
 		common->Printf( "couldn't read /proc/cpuinfo\n" );
@@ -345,6 +350,8 @@ double Sys_ClockTicksPerSecond(void) {
 	ret = MeasureClockTicks();
 	init = true;
 	common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
+#endif
+
 	return ret;		
 }
 
