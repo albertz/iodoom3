@@ -149,7 +149,7 @@ void idAASLocal::CalculateAreaTravelTimes(void) {
 			}
 			reach->number = i;
 			reach->disableCount = 0;
-			reach->areaTravelTimes = (unsigned short *) bytePtr;
+			reach->areaTravelTimes = bytePtr;
 			for ( j = 0, rev_reach = file->GetArea( n ).rev_reach; rev_reach; rev_reach = rev_reach->rev_next, j++ ) {
 				t = AreaTravelTime( n, reach->start, rev_reach->end );
 				reach->areaTravelTimes[j] = t;
@@ -157,7 +157,7 @@ void idAASLocal::CalculateAreaTravelTimes(void) {
 					maxt = t;
 				}
 			}
-			bytePtr += j * sizeof( unsigned short );
+			bytePtr += j;
 		}
 
 		// if this area is a portal
@@ -167,7 +167,7 @@ void idAASLocal::CalculateAreaTravelTimes(void) {
 		}
 	}
 
-	assert( ( (unsigned long) bytePtr - (unsigned long) areaTravelTimes ) <= numAreaTravelTimes * sizeof( unsigned short ) );
+	assert((bytePtr - areaTravelTimes) <= numAreaTravelTimes);
 }
 
 /*
