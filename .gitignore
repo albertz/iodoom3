@@ -7,7 +7,7 @@ site.conf
 *.pyc
 *.o
 *.lo
-cscope.out
+cscope.*
 .*.sw*
 core*
 *.user
