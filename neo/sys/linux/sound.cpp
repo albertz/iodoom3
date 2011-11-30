@@ -29,7 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <malloc.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 // OSS sound interface
@@ -187,12 +186,14 @@ bool idAudioHardwareOSS::Initialize( ) {
 	// may only be available starting with OSS API v4.0
 	// http://www.fi.opensound.com/developer/SNDCTL_SYSINFO.html
 	// NOTE: at OSS API 4.0 headers, replace OSS_SYSINFO with SNDCTL_SYSINFO
+	#if defined( __linux__ )
 	oss_sysinfo si;
 	if ( ioctl( m_audio_fd, OSS_SYSINFO, &si ) == -1 ) {
 		common->Printf( "ioctl SNDCTL_SYSINFO failed: %s\nthis ioctl is only available in OSS/Linux implementation. If you run OSS/Free, don't bother.", strerror( errno ) );
 	} else {
 		common->Printf( "%s: %s %s\n", s_device.GetString(), si.product, si.version );
 	}
+	#endif
 
 	if ( ioctl( m_audio_fd, SNDCTL_DSP_GETCAPS, &caps ) == -1 ) {
 		common->Warning( "ioctl SNDCTL_DSP_GETCAPS failed - driver too old?" );
@@ -205,9 +206,13 @@ bool idAudioHardwareOSS::Initialize( ) {
 		InitFailed();
 		return false;
 	}
-	ExtractOSSVersion( oss_version, s_oss_version );
 	ExtractOSSVersion( SOUND_VERSION, s_compiled_oss_version );
+	#if defined( __linux__ )
+	ExtractOSSVersion( oss_version, s_oss_version );
 	common->DPrintf( "OSS interface version %s - compile time %s\n", s_oss_version.c_str(), s_compiled_oss_version.c_str() );
+	#elif defined ( __FreeBSD__ )
+	common->DPrintf( "OSS interface version %s\n", s_compiled_oss_version.c_str() );
+	#endif
 	if (!(caps & DSP_CAP_MMAP)) {
 		common->Warning( "driver doesn't have DSP_CAP_MMAP capability" );
 		InitFailed();

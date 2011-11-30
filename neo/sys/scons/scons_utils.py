@@ -127,7 +127,9 @@ def checkLDD( target, source, env ):
 
 def SharedLibrarySafe( env, target, source ):
 	ret = env.SharedLibrary( target, source )
-	env.AddPostAction( ret, checkLDD )
+	# FIXME: This is an evil hack
+	if ( 'Linux' == commands.getoutput('uname')):
+	    env.AddPostAction( ret, checkLDD )
 	return ret
 
 def NotImplementedStub( *whatever ):

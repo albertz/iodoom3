@@ -37,6 +37,10 @@ If you have questions concerning this license or the applicable additional terms
 #include <sys/types.h>
 #include <fcntl.h>
 
+#ifdef __FreeBSD__
+#include <sys/sysctl.h>
+#endif
+
 #ifdef ID_MCHECK
 #include <mcheck.h>
 #endif
@@ -131,6 +135,18 @@ Sys_EXEPath
 */
 const char *Sys_EXEPath( void ) {
 	static char	buf[ 1024 ];
+
+#if defined( __FreeBSD__ )
+	static int opts[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+	size_t len = sizeof(buf) - 1;
+	buf[ 0 ] = '\0';
+
+	if ( sysctl(opts, sizeof(opts)/sizeof(*opts), buf, &len, NULL, 0) )
+	{
+		Sys_Printf("couldn't get the exe path via sysctl\n");
+		buf[ len ] = '\n';
+	}
+#else
 	idStr		linkpath;
 	int			len;
 
@@ -141,6 +157,8 @@ const char *Sys_EXEPath( void ) {
 		Sys_Printf("couldn't stat exe path link %s\n", linkpath.c_str());
 		buf[ len ] = '\0';
 	}
+#endif
+	
 	return buf;
 }
 
@@ -306,6 +324,11 @@ double Sys_ClockTicksPerSecond(void) {
 		return ret;
 	}
 
+#if defined( __FreeBSD__ )
+	ret = MeasureClockTicks();
+	init = true;
+	common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 ); 
+#else
 	fd = open( "/proc/cpuinfo", O_RDONLY );
 	if ( fd == -1 ) {
 		common->Printf( "couldn't read /proc/cpuinfo\n" );
@@ -342,6 +365,8 @@ double Sys_ClockTicksPerSecond(void) {
 	ret = MeasureClockTicks();
 	init = true;
 	common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
+#endif
+
 	return ret;		
 }
 
