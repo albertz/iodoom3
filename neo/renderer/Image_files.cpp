@@ -1095,9 +1095,9 @@ bool R_LoadCubeImages( const char *imgName, cubeFiles_t extensions, byte *pics[6
 	int			width, height, size = 0;
 
 	if ( extensions == CF_CAMERA ) {
-		sides = (char **)cameraSides;
+		sides = (const char **)cameraSides;
 	} else {
-		sides = (char **)axisSides;
+		sides = (const char **)axisSides;
 	}
 
 	// FIXME: precompressed cube map files
