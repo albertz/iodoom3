@@ -744,13 +744,7 @@ returns in megabytes
 ================
 */
 int Sys_GetSystemRam( void ) {
-	long ramSize;
-	
-	if ( Gestalt( gestaltPhysicalRAMSize, &ramSize ) == noErr ) {
-		return ramSize / (1024*1024);
-	}
-	else
-		return 1024;
+    return [[NSProcessInfo processInfo] physicalMemory] / (1024*1024);
 }
 
 /*
