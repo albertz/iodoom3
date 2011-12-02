@@ -254,7 +254,7 @@ void idSimpleWindow::Redraw(float x, float y) {
 	textRect.Offset(-x, -y);
 }
 
-int idSimpleWindow::GetWinVarOffset( idWinVar *wv, drawWin_t* owner) {
+long int idSimpleWindow::GetWinVarOffset( idWinVar *wv, drawWin_t* owner) {
 	size_t ret = -1;
 
 	if ( wv == &rect ) {
